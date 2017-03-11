@@ -58,5 +58,17 @@ describe("multi()", function () {
       }).exec();
     });
 
+    it('should run sorted set operations in order', function (done) {
+      r.zadd('myzset', 1, 'a');
+      r.zadd('myzset', 2, 'b');
+      r.multi().
+        zremrangebyscore('myzset', 0, 1).
+        zadd('myzset', 'NX', 3, 'a').
+        exec(function (err, result) {
+          should(err).not.be.ok();
+          should.deepEqual(result, [1, 1]);
+          done();
+        });
+    });
   });
 });
